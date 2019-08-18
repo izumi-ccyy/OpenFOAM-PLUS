@@ -1,0 +1,51 @@
+// -*- C++ -*-
+
+// Sample volume fields to surfaces and hold on registry.
+sampled
+{
+    type    surfaces;
+    libs    ("libsampling.so");
+    log     true;
+    verbose true;
+
+    executeControl  timeStep;
+    executeInterval 1;
+    writeControl    none;
+    surfaceFormat   none;
+
+    sampleOnExecute true;
+
+    // Includes a rhoU derived field
+    fields  (rho U tracer0 rhoU);
+
+    // Remove derived fields we created prior
+    removeFieldsOnExecute   (pTotal);
+
+    _sampleMesh
+    {
+        type    sampledTriSurfaceMesh;
+        source  cells;
+        store   true;
+    }
+
+    surfaces
+    {
+        plane-0.25
+        {
+            ${_sampleMesh}
+            surface     plane-0.25.stl;
+        }
+        plane-0.45
+        {
+            ${_sampleMesh}
+            surface     plane-0.45.stl;
+        }
+        plane-0.55
+        {
+            ${_sampleMesh}
+            surface     plane-0.55.stl;
+        }
+    }
+}
+
+// ************************************************************************* //

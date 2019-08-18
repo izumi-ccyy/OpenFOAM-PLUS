@@ -1,0 +1,179 @@
+#----------------------------------*-sh-*--------------------------------------
+# =========                 |
+# \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+#  \\    /   O peration     |
+#   \\  /    A nd           | Copyright (C) 2018-2019 OpenCFD Ltd.
+#    \\/     M anipulation  |
+#------------------------------------------------------------------------------
+# License
+#     This file is part of OpenFOAM, licensed under GNU General Public License
+#     <http://www.gnu.org/licenses/>.
+#
+# Script
+#     sysFunctions
+#
+# Description
+#     General system helper functions
+#
+# Functions provided
+#     isNone, isSystem, isAbsdir, hasAbsdir
+#     isDarwin, isWindows
+#     findFirstFile
+#     findLibrary
+#     findExtLib
+#
+# Internal variables used
+#     extLibraries
+#
+#------------------------------------------------------------------------------
+
+if [ -z "$WMAKE_SCRIPTS_SYSFUNCTIONS" ]
+then
+    # Load once, but do not rely on this variable elsewhere
+    WMAKE_SCRIPTS_SYSFUNCTIONS=loaded
+
+    # True if OS is Darwin.
+    isDarwin()
+    {
+        test Darwin = "$(uname -s 2>/dev/null)"
+    }
+
+    # True if target OS is Windows
+    # Uses cached value from libso extension
+    isWindows()
+    {
+        test MSwindows = "$WM_OSTYPE"
+    }
+
+    # Static, dynamic library extensions
+    extLibraries=".a .so"
+
+    if isDarwin
+    then
+        extLibraries=".a .dylib"
+    elif isWindows
+    then
+        extLibraries=".a .dll .dll.a"  # including cross-compiling
+    fi
+
+
+    # True if '$1' begins with '/'
+    isAbsdir()
+    {
+        test "$1" = "/${1#/}"
+    }
+
+
+    # True if '$1' begins with '/' and also exists as a directory
+    hasAbsdir()
+    {
+        test "$1" = "/${1#/}" -a -d "$1"
+    }
+
+
+    # True if '$1' is an empty string, "none" or ends in "-none"
+    # Eg,
+    #    if isNone "$BOOST_ARCH_PATH" ...
+    isNone()
+    {
+        test -z "$1" -o "${1##*-}" = none
+    }
+
+
+    # True if '$1' is "system" or ends in "-system"
+    # Eg,
+    #    if isSystem "$BOOST_ARCH_PATH"
+    isSystem()
+    {
+        test "${1##*-}" = system
+    }
+
+
+    # Return system prefix (/usr, /usr/local, ...) based on hint provided
+    # Eg,
+    #    sysPrefix "/usr/local/include/fftw3.h"  -> "/usr/local"
+    #
+    # Without a hint, echoes "/usr"
+    sysPrefix()
+    {
+        case "$1" in
+        /usr/local/*)
+            echo "/usr/local"
+            ;;
+        *)
+            echo "/usr"
+            ;;
+        esac
+    }
+
+
+    # Check existence of any of the files
+    # On success, echoes the file found and returns 0, otherwise returns 2
+    findFirstFile()
+    {
+        local file
+
+        for file
+        do
+            if [ -f "$file" ] && [ -r "$file" ]
+            then
+                echo "$file"  # Found
+                return 0
+            fi
+        done
+        return 2
+    }
+
+
+    # Check existence of library with ending '.a', '.so' ...
+    #
+    # On success, echoes the resolved file and returns 0, otherwise returns 2
+    findLibrary()
+    {
+        local file ext
+
+        for file
+        do
+            [ -n "$file" ] || continue
+            for ext in '' $extLibraries
+            do
+                if [ -f "$file$ext" ] && [ -r "$file$ext" ]
+                then
+                    echo "$file$ext"  # Found
+                    return 0
+                fi
+            done
+        done
+
+        return 2
+    }
+
+
+    # Check existence of library in FOAM_EXT_LIBBIN, but conditional
+    # on FOAM_EXT_LIBBIN being located in the ThirdParty directory
+    #
+    # On success, echoes the resolved file and returns 0, otherwise returns 2
+    findExtLib()
+    {
+        local file
+
+        if [ -n "$FOAM_EXT_LIBBIN" ] && \
+           [ -n "$WM_THIRD_PARTY_DIR" ] && \
+           [ "${FOAM_EXT_LIBBIN#$WM_THIRD_PARTY_DIR}" != "$FOAM_EXT_LIBBIN" ]
+        then
+            for file
+            do
+                if file="$(findLibrary "$FOAM_EXT_LIBBIN/$file")"
+                then
+                    echo "$file"
+                    return 0
+                fi
+            done
+        fi
+
+        return 2
+    }
+fi
+
+
+#------------------------------------------------------------------------------

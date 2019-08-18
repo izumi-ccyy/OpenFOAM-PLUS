@@ -1,0 +1,27 @@
+common/reader/meshReader.C
+common/reader/meshReaderAux.C
+common/reader/calcPointCells.C
+common/reader/createPolyCells.C
+common/reader/createPolyBoundary.C
+common/writer/meshWriter.C
+common/tables/boundaryRegion.C
+common/tables/cellTable.C
+
+ensight/mesh/ensightMesh.C
+ensight/mesh/ensightMeshIO.C
+ensight/mesh/ensightMeshOptions.C
+
+fire/FIREMeshReader.C
+fire/FIREMeshWriter.C
+fire/checkFireEdges.C
+
+starcd/STARCDMeshReader.C
+starcd/STARCDMeshWriter.C
+
+polyDualMesh/polyDualMesh.C
+
+vtk/output/foamVtkInternalWriter.H
+vtk/output/foamVtkPatchWriter.H
+vtk/output/foamVtkSurfaceFieldWriter.C
+
+LIB = $(FOAM_LIBBIN)/libconversion

@@ -1,0 +1,24 @@
+#!/bin/sh
+cd "${0%/*}" || exit 1                  # Run from this directory
+
+if [ -z "$WM_DIR" ]                     # Require WM_DIR
+then
+    WM_DIR="$(\cd $(dirname $0)/.. && \pwd -L)"
+    export WM_DIR
+fi
+
+case "$WM_COMPILER" in
+Mingw*)
+    # Host wmake toolchain with system gcc (when cross-compiling)
+    make \
+        WM_COMPILER=Gcc WM_COMPILER_TYPE=system \
+        WMAKE_BIN="${WM_DIR}/platforms/${WM_ARCH}${WM_COMPILER}"
+    ;;
+
+*)
+    # Compile wmake toolchain
+    make
+    ;;
+esac
+
+#------------------------------------------------------------------------------

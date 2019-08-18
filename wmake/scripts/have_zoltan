@@ -1,0 +1,127 @@
+#----------------------------------*-sh-*--------------------------------------
+# =========                 |
+# \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+#  \\    /   O peration     |
+#   \\  /    A nd           | Copyright (C) 2018-2019 OpenCFD Ltd.
+#    \\/     M anipulation  |
+#------------------------------------------------------------------------------
+# License
+#     This file is part of OpenFOAM, licensed under GNU General Public License
+#     <http://www.gnu.org/licenses/>.
+#
+# Script
+#     have_zoltan
+#
+# Description
+#     Detection/setup of zoltan
+#
+# Requires
+#     config.sh/zoltan
+#
+# Functions provided
+#     have_zoltan, no_zoltan, echo_zoltan
+#
+# Variables set on success
+#     HAVE_ZOLTAN
+#     ZOLTAN_ARCH_PATH
+#     ZOLTAN_INC_DIR
+#     ZOLTAN_LIB_DIR
+#
+#------------------------------------------------------------------------------
+. $WM_PROJECT_DIR/wmake/scripts/sysFunctions # General system functions
+
+#------------------------------------------------------------------------------
+
+# Reset variables
+no_zoltan()
+{
+    unset HAVE_ZOLTAN ZOLTAN_INC_DIR ZOLTAN_LIB_DIR
+    return 0
+}
+
+
+# Report
+echo_zoltan()
+{
+    echo "zoltan=${HAVE_ZOLTAN:-false}"
+    echo "root=$ZOLTAN_ARCH_PATH"
+    echo "include=$ZOLTAN_INC_DIR"
+    echo "library=$ZOLTAN_LIB_DIR"
+}
+
+
+# On success, return 0 and export variables
+# -> HAVE_ZOLTAN, ZOLTAN_INC_DIR, ZOLTAN_LIB_DIR
+have_zoltan()
+{
+    local prefix header library incName libName settings warn
+    # warn="==> skip zoltan"
+
+    # Setup
+    if settings=$($WM_PROJECT_DIR/bin/foamEtcFile config.sh/zoltan)
+    then
+        . "$settings"
+    else
+        [ -n "$warn" ] && echo "$warn (no config.sh/zoltan settings)"
+        return 2
+    fi
+
+    # Expected location, include/library names
+    prefix="$ZOLTAN_ARCH_PATH"
+    incName="zoltan.h"
+    libName="libzoltan"
+
+    # ----------------------------------
+    if isNone "$prefix"
+    then
+        [ -n "$warn" ] && echo "$warn (disabled)"
+        return 1
+    elif hasAbsdir "$prefix"
+    then
+        header=$(findFirstFile "$prefix/include/$incName")
+        library="$(findExtLib $libName)"
+    elif isSystem "$prefix"
+    then
+        header=$(findFirstFile "/usr/local/include/$incName" "/usr/include/$incName")
+        prefix=$(sysPrefix "$header")
+    else
+        unset prefix
+    fi
+    # ----------------------------------
+
+    # Header
+    [ -n "$header" ] || {
+        [ -n "$warn" ] && echo "$warn (no header)"
+        return 2
+    }
+
+    # Library
+    [ -n "$library" ] || library=$(findLibrary \
+        "$prefix/lib/$libName" \
+        "$prefix/lib$WM_COMPILER_LIB_ARCH/$libName" \
+    ) || {
+        [ -n "$warn" ] && echo "$warn (no library)"
+        return 2
+    }
+
+    # ----------------------------------
+
+    # OK
+    export HAVE_ZOLTAN=true
+    export ZOLTAN_ARCH_PATH="$prefix"
+    export ZOLTAN_INC_DIR="${header%/*}"     # Basename
+    export ZOLTAN_LIB_DIR="${library%/*}"    # Basename
+}
+
+
+# Force reset of old variables
+no_zoltan
+
+# Testing
+if [ "$1" = "-test" ]
+then
+    have_zoltan
+    echo_zoltan
+fi
+
+#------------------------------------------------------------------------------

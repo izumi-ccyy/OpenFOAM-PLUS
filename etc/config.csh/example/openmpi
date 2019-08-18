@@ -1,0 +1,25 @@
+#----------------------------------*-sh-*--------------------------------------
+# =========                 |
+# \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+#  \\    /   O peration     |
+#   \\  /    A nd           |
+#    \\/     M anipulation  |
+#------------------------------------------------------------------------------
+#                           | Copyright (C) 2011-2016 OpenFOAM Foundation
+#------------------------------------------------------------------------------
+# License
+#     This file is part of OpenFOAM, licensed under GNU General Public License
+#     <http://www.gnu.org/licenses/>.
+#
+# File
+#     config.csh/example/openmpi
+#     - sourced by OpenFOAM-*/etc/config.csh/mpi
+#
+# Description
+#     Example of fine tuning openmpi settings for OpenFOAM
+#
+#------------------------------------------------------------------------------
+
+setenv FOAM_MPI openmpi-3.0.0
+
+#------------------------------------------------------------------------------

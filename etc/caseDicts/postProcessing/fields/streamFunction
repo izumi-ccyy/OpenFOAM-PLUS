@@ -1,0 +1,22 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Version:  v1906
+    \\  /    A nd           | Web:      www.OpenFOAM.com
+     \\/     M anipulation  |
+-------------------------------------------------------------------------------
+Description
+    Writes the stream-function pointScalarField calculated from the specified
+    flux surfaceScalarField.
+
+\*---------------------------------------------------------------------------*/
+
+type            streamFunction;
+libs            ("libfieldFunctionObjects.so");
+
+field           phi;
+
+executeControl  writeTime;
+writeControl    writeTime;
+
+// ************************************************************************* //

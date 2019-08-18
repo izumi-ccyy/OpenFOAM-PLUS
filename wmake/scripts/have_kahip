@@ -1,0 +1,131 @@
+#----------------------------------*-sh-*--------------------------------------
+# =========                 |
+# \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+#  \\    /   O peration     |
+#   \\  /    A nd           | Copyright (C) 2018-2019 OpenCFD Ltd.
+#    \\/     M anipulation  |
+#------------------------------------------------------------------------------
+# License
+#     This file is part of OpenFOAM, licensed under GNU General Public License
+#     <http://www.gnu.org/licenses/>.
+#
+# Script
+#     have_kahip
+#
+# Description
+#     Detection/setup of KAHIP
+#
+# Requires
+#     config.sh/kahip
+#
+# Functions provided
+#     have_kahip, no_kahip, echo_kahip
+#
+# Variables set on success
+#     HAVE_KAHIP
+#     KAHIP_ARCH_PATH
+#     KAHIP_INC_DIR
+#     KAHIP_LIB_DIR
+#
+#------------------------------------------------------------------------------
+. $WM_PROJECT_DIR/wmake/scripts/sysFunctions # General system functions
+
+#------------------------------------------------------------------------------
+
+# Reset variables
+no_kahip()
+{
+    unset HAVE_KAHIP KAHIP_ARCH_PATH KAHIP_INC_DIR KAHIP_LIB_DIR
+    unset KAHIP_VERSION
+    return 0
+}
+
+
+# Report
+echo_kahip()
+{
+    echo "kahip=${HAVE_KAHIP:-false}"
+    echo "root=$KAHIP_ARCH_PATH"
+    echo "include=$KAHIP_INC_DIR"
+    echo "library=$KAHIP_LIB_DIR"
+}
+
+
+# On success, return 0 and export variables
+# -> HAVE_KAHIP, KAHIP_ARCH_PATH, KAHIP_INC_DIR, KAHIP_LIB_DIR
+have_kahip()
+{
+    local prefix header library incName libName settings warn
+    warn="==> skip kahip"
+
+    #  Setup
+    if settings=$($WM_PROJECT_DIR/bin/foamEtcFile config.sh/kahip)
+    then
+        . "$settings"
+    else
+        [ -n "$warn" ] && echo "$warn (no config.sh/kahip settings)"
+        return 1
+    fi
+
+    # Expected location, include/library names
+    prefix="$KAHIP_ARCH_PATH"
+    incName="kaHIP_interface.h"
+    libName="libkahip"
+
+    # ----------------------------------
+    if isNone "$prefix"
+    then
+        [ -n "$warn" ] && echo "$warn (disabled)"
+        return 1
+    elif hasAbsdir "$prefix"
+    then
+        header=$(findFirstFile "$prefix/include/$incName")
+        library="$(findExtLib $libName)"
+    elif isSystem "$prefix"
+    then
+        header=$(findFirstFile "/usr/local/include/$incName" "/usr/include/$incName")
+        prefix=$(sysPrefix "$header")
+    else
+        unset prefix
+    fi
+    # ----------------------------------
+
+    # Header
+    [ -n "$header" ] || {
+        [ -n "$warn" ] && echo "$warn (no header)"
+        return 2
+    }
+
+    # Library
+    [ -n "$library" ] || library=$(findLibrary \
+        "$prefix/lib/$libName" \
+        "$prefix/lib$WM_COMPILER_LIB_ARCH/$libName" \
+    ) || {
+        [ -n "$warn" ] && echo "$warn (no library)"
+        return 2
+    }
+
+    # ----------------------------------
+
+    # kahip itself is 32-bit int, but our interface itself handles some
+    # 64-bit conversion (mesh size).
+
+    echo "kahip (label=32) - $prefix"
+    export HAVE_KAHIP=true
+    export KAHIP_ARCH_PATH="$prefix"
+    export KAHIP_INC_DIR="${header%/*}"     # Basename
+    export KAHIP_LIB_DIR="${library%/*}"    # Basename
+}
+
+
+# Force reset of old variables
+no_kahip
+
+# Testing
+if [ "$1" = "-test" ]
+then
+    have_kahip
+    echo_kahip
+fi
+
+#------------------------------------------------------------------------------

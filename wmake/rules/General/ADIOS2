@@ -1,0 +1,12 @@
+#-------------------------------*- makefile -*---------------------------------
+# ADIOS2 includes/libraries
+
+sinclude $(GENERAL_RULES)/mplib$(WM_MPLIB)
+sinclude $(DEFAULT_RULES)/mplib$(WM_MPLIB)
+
+# May need to strip off rpath ...
+
+ADIOS_FLAGS := $(shell $(ADIOS2_ARCH_PATH)/bin/adios2-config --cxx-flags)
+ADIOS_LIBS  := $(shell $(ADIOS2_ARCH_PATH)/bin/adios2-config --cxx-libs)
+
+#------------------------------------------------------------------------------
