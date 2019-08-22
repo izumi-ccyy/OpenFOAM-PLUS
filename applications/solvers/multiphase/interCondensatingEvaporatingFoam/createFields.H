@@ -1,5 +1,5 @@
 Info<< "Reading field p_rgh\n" << endl;
-volScalarField p_rgh
+volScalarField p_rgh // pressure
 (
     IOobject
     (
@@ -13,7 +13,7 @@ volScalarField p_rgh
 );
 
 Info<< "Reading field U\n" << endl;
-volVectorField U
+volVectorField U // velocity
 (
     IOobject
     (
@@ -26,10 +26,10 @@ volVectorField U
     mesh
 );
 
-#include "createPhi.H"
+#include "createPhi.H" // phi
 
 // Creating e based thermo
-autoPtr<twoPhaseMixtureEThermo> thermo
+autoPtr<twoPhaseMixtureEThermo> thermo // thermo, defined by twoPhaseMixtureEThermo
 (
     new twoPhaseMixtureEThermo(U, phi)
 );
@@ -37,17 +37,17 @@ autoPtr<twoPhaseMixtureEThermo> thermo
 // Create mixture and
 Info<< "Creating temperaturePhaseChangeTwoPhaseMixture\n" << endl;
 autoPtr<temperaturePhaseChangeTwoPhaseMixture> mixture =
-    temperaturePhaseChangeTwoPhaseMixture::New(thermo(), mesh);
+    temperaturePhaseChangeTwoPhaseMixture::New(thermo(), mesh); // mixture, defined by left
 
 
-volScalarField& alpha1(thermo->alpha1());
+volScalarField& alpha1(thermo->alpha1()); // alpha is a member of thermo
 volScalarField& alpha2(thermo->alpha2());
 
 const dimensionedScalar& rho1 = thermo->rho1();
 const dimensionedScalar& rho2 = thermo->rho2();
 
 // Need to store rho for ddt(rho, U)
-volScalarField rho
+volScalarField rho // rho calculated by alpha and rho for every phase
 (
     IOobject
     (
@@ -62,7 +62,7 @@ volScalarField rho
 rho.oldTime();
 
 // Construct interface from alpha1 distribution
-interfaceProperties interface
+interfaceProperties interface // interface
 (
     alpha1,
     U,
@@ -70,7 +70,7 @@ interfaceProperties interface
 );
 
 // Construct incompressible turbulence model
-autoPtr<incompressible::turbulenceModel> turbulence
+autoPtr<incompressible::turbulenceModel> turbulence // incompressible turbulence model
 (
     incompressible::turbulenceModel::New(U, phi, thermo())
 );
@@ -79,7 +79,7 @@ autoPtr<incompressible::turbulenceModel> turbulence
 #include "readhRef.H"
 #include "gh.H"
 
-volScalarField& p = thermo->p();
+volScalarField& p = thermo->p(); // define pressure from thermo
 
 label pRefCell = 0;
 scalar pRefValue = 0.0;
@@ -107,9 +107,9 @@ mesh.setFluxRequired(p_rgh.name());
 mesh.setFluxRequired(alpha1.name());
 
 // Turbulent Prandtl number
-dimensionedScalar Prt("Prt", dimless, thermo->transportPropertiesDict());
+dimensionedScalar Prt("Prt", dimless, thermo->transportPropertiesDict()); // define Prt from thermo
 
-volScalarField kappaEff
+volScalarField kappaEff // define kappaEff by thermo
 (
     IOobject
     (
@@ -123,7 +123,7 @@ volScalarField kappaEff
 );
 
 // Need to store rho for ddt(rhoCp, U)
-volScalarField rhoCp
+volScalarField rhoCp // define rho * cp by thermo
 (
     IOobject
     (

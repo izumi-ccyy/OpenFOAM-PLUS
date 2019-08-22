@@ -1,3 +1,8 @@
 {
-    "git.ignoreLimitWarning": true
+    "git.ignoreLimitWarning": true,
+    "files.associations": {
+        "twoPhaseMixtureEThermo.C": "cpp",
+        "interCondensatingEvaporatingFoam.C": "cpp",
+        "ThermalDiffusivity.C": "cpp"
+    }
 }

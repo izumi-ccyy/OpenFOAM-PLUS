@@ -117,7 +117,7 @@ Foam::twoPhaseMixtureEThermo::twoPhaseMixtureEThermo
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-void Foam::twoPhaseMixtureEThermo::correct()
+void Foam::twoPhaseMixtureEThermo::correct() // correct T by alpha1 and alpha2
 {
     incompressibleTwoPhaseMixture::correct();
 
@@ -226,7 +226,7 @@ Foam::tmp<Foam::scalarField> Foam::twoPhaseMixtureEThermo::he
 }
 
 
-Foam::tmp<Foam::volScalarField> Foam::twoPhaseMixtureEThermo::hc() const
+Foam::tmp<Foam::volScalarField> Foam::twoPhaseMixtureEThermo::hc() const // define hc
 {
     const fvMesh& mesh = this->T_.mesh();
 
