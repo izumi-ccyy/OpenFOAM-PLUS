@@ -3,6 +3,11 @@
     "files.associations": {
         "twoPhaseMixtureEThermo.C": "cpp",
         "interCondensatingEvaporatingFoam.C": "cpp",
-        "ThermalDiffusivity.C": "cpp"
+        "ThermalDiffusivity.C": "cpp",
+        "newtemperaturePhaseChangeTwoPhaseMixture.C": "cpp",
+        "temperaturePhaseChangeTwoPhaseMixture.C": "cpp",
+        "constant.C": "cpp",
+        "dimensionedScalar.C": "cpp",
+        "thermoIncompressibleTwoPhaseMixture.C": "cpp"
     }
 }

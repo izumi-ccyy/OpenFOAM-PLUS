@@ -90,3 +90,4 @@ doc/Doxygen/DTAGS
 # Ignore the test directory
 /tutorialsTest
 .vscode/settings.json
+.vscode/settings.json
