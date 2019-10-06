@@ -49,7 +49,7 @@ void Foam::twoPhaseMixtureEThermo::correct() // correct T by alpha1 and alpha2
 ```
 
 $$
-T = \frac{e (\alpha_1 \rho_1 + \alpha_2 \rho_2) - (\alpha_1 \rho_1 H_{f1} + \alpha_2 \rho_2 H_{f2})}{\alpha_1 \rho_1 C_{v1} + \alpha_2 \rho_2 C_{v2}}
+T = \frac{e (\alpha_1 \rho_1 + \alpha_2 \rho_2) - (\alpha_1 \rho_1 H_{f1} + \alpha_2 \rho_2 H_{f2})}{\alpha_1 \rho_1 C_{v1} + \alpha_2 \rho_2 C_{v2}} + T_{sat}
 $$
 
 where $H_f$ is the latent heat for phase

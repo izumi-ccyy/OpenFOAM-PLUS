@@ -23,6 +23,7 @@
     // Update the pressure BCs to ensure flux consistency
     constrainPressure(p_rgh, U, phiHbyA, rAUf);
 
+    // get mass flow rate for continuity equation
     Pair<tmp<volScalarField>> vDot = mixture->vDot();
     const volScalarField& vDotc = vDot[0]();
     const volScalarField& vDotv = vDot[1]();
